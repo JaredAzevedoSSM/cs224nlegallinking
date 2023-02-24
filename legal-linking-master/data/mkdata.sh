@@ -3,11 +3,10 @@
 set -e
 
 TOTAL=$1
-if [[ "$#" -ne 1 ]]; then
+if [ "$#" -ne 1 ]; then
   # set TOTAL to a default value of HUGE
   TOTAL=1000000000000000000
 fi
-
 
 # thanks: https://stackoverflow.com/questions/5914513/shuffling-lines-of-a-file-with-a-fixed-seed
 get_seeded_random()
@@ -28,7 +27,7 @@ echo "Total num json lines: "
 wc -l all_json
 
 cd ..
-if [[ ! -f data/all_lines ]]; then
+if [ ! -f data/all_lines ]; then
     echo "File not found!"
     echo "Converting to lines"
     # can add --limit 100 for testing.
