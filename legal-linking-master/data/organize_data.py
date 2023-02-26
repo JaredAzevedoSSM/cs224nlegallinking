@@ -119,7 +119,6 @@ class data():
                     sample['amendment'] = 'twentieth'
                 elif 'twenty-first' in this_amendment:
                     sample['amendment'] = 'twenty-first'
-        
         return self.observations
 
 
