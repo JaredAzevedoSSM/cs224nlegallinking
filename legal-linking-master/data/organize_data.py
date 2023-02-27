@@ -27,7 +27,8 @@ AMENDMENTS = {'first': 'Congress shall make no law respecting an establishment o
               'twenty-fourth':'§1 The right of citizens of the United States to vote in any primary or other election for President or Vice President for electors for President or Vice President, or for Senator or Representative in Congress, shall not be denied or abridged by the United States or any State by reason of failure to pay any poll tax or other tax. §2 The Congress shall have power to enforce this article by appropriate legislation.',
               'twenty-fifth':'§1 In case of the removal of the President from office or of his death or resignation, the Vice President shall become PresidentBrief History- Vice Presidential Succession: Until the first presidential vacancy arose in 1841 with the untimely death of President William Henry Harrison, there was great uncertainty as to whether the vice president would become an acting president or fully president. John Tyler insisted that he fully succeeded Harrison–to the point that mail addressed to Acting President Tyler was ignored by the White House. Uncertainty also surrounded the role of the vice president during presidential incapacity. In 1919, President Woodrow Wilson suffered a stroke that paralyzed the left side of his body and significantly weakened him otherwise; that the remainder of his administration was largely shaped by his wife Edith, who acted on his behalf. The ratification of the 25th Amendment in 1967 permanently codified the Tyler Precedent and established procedures for the temporary removal of a president due to incapacity.. §2 Whenever there is a vacancy in the office of the Vice President, the President shall nominate a Vice President who shall take office upon confirmation by a majority vote of both Houses of Congress. §3 Whenever the President transmits to the President pro tempore of the Senate and the Speaker of the House of Representatives his written declaration that he is unable to discharge the powers and duties of his office, and until he transmits to them a written declaration to the contrary, such powers and duties shall be discharged by the Vice President as Acting President. §4 Whenever the Vice President and a majority of either the principal officers of the executive departments or of such other body as Congress may by law provide, transmit to the President pro tempore of the Senate and the Speaker of the House of Representatives their written declaration that the President is unable to discharge the powers and duties of his office, the Vice President shall immediately assume the powers and duties of the office as Acting President. Thereafter, when the President transmits to the President pro tempore of the Senate and the Speaker of the House of Representatives his written declaration that no inability exists, he shall resume the powers and duties of his office unless the Vice President and a majority of either the principal officers of the executive department or of such other body as Congress may by law provide, transmit within four days to the President pro tempore of the Senate and the Speaker of the House of Representatives their written declaration that the President is unable to discharge the powers and duties of his office. Thereupon Congress shall decide the issue, assembling within forty-eight hours for that purpose if not in session. If the Congress, within twenty-one days after receipt of the latter written declaration, or, if Congress is not in session, within twenty-one days after Congress is required to assemble, determines by two-thirds vote of both Houses that the President is unable to discharge the powers and duties of his office, the Vice President shall continue to discharge the same as Acting President; otherwise, the President shall resume the powers and duties of his office.',
               'twenty-sixth':'§1 The right of citizens of the United States, who are eighteen years of age or older, to vote shall not be denied or abridged by the United States or by any State on account of age. §2 The Congress shall have power to enforce this article by appropriate legislation.',
-              'twenty-seventh':'No law varying the compensation for the services of the Senators and Representatives shall take effect, until an election of Representatives shall have intervened.'}
+              'twenty-seventh':'No law varying the compensation for the services of the Senators and Representatives shall take effect, until an election of Representatives shall have intervened.',
+              'pending': 'pending'}
 
 
 class data():
@@ -91,7 +92,7 @@ class data():
                     sample['amendment'] = 'sixth'
                 elif 'seventh' in this_amendment:
                     sample['amendment'] = 'seventh'
-                elif 'eigth' in this_amendment:
+                elif 'eighth' in this_amendment:
                     sample['amendment'] = 'eighth'
                 elif 'nineth' in this_amendment:
                     sample['amendment'] = 'ninth'
@@ -119,11 +120,19 @@ class data():
                     sample['amendment'] = 'twentieth'
                 elif 'twenty-first' in this_amendment:
                     sample['amendment'] = 'twenty-first'
+                else: 
+                    sample['amendment'] = 'pending'
         return self.observations
 
 
+    def match_amendments(self):
+        for sample in self.observations:
+            sample['amendment_text'] = 'No'
+            if sample['label'] == 1:
+                sample['amendment_text'] = AMENDMENTS[str.lower(sample['amendment'])]
+        return self.observations
 
-
+    
 if __name__ == "__main__":
     path = os.getcwd()
     training = data(path, 'full')
@@ -139,18 +148,18 @@ if __name__ == "__main__":
     categoriaas = training.check_amendments()
     print(categoriaas)
     categorias = training.add_amendments()
-    print(training.observations[:50])
+    # print(training.observations[:50])
     
-    count = 0
-    lista = []
-    for observation in training.observations:
-        if observation['label'] == 1 and count < 50:
-            lista.append(observation)
-            count +=1
-        
-
-    
-    print(lista[:50])
+    resultado = training.match_amendments()
+    print(resultado[:25])
+    # count = 0
+    # lista = []
+    # for observation in training.observations:
+    #     if observation['label'] == 1 and count < 50:
+    #         lista.append(observation)
+    #         count +=1
+       
+    # print(lista[:49])
 
 
 
