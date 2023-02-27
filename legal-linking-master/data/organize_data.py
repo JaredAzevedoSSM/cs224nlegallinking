@@ -61,16 +61,16 @@ class data():
 
     def label(self):
         for sample in self.observations:
-            sample['label'] = 0
+            sample['label'] = float(0)
             if len(sample['matches']) != 0:
-                sample['label'] = 1
+                sample['label'] = float(1)
         return self.observations
 
 
     def check_amendments(self):
         self.amendments_categories = []
         for x in self.observations:
-            if x['label'] == 1:
+            if x['label'] == float(1):
                 if x['matches'][0][0] not in self.amendments_categories:
                     self.amendments_categories.append(x['matches'][0][0])
         return self.amendments_categories 
@@ -78,8 +78,8 @@ class data():
 
     def add_amendments(self):
         for sample in self.observations:
-            if sample['label'] == 0:
-                sample['amendment'] = 0
+            if sample['label'] == float(0):
+                sample['amendment'] = 'pending'
             elif sample['label'] == 1:
                 this_amendment = str.lower(sample['matches'][0][0])
                 if 'firs' in this_amendment:
@@ -132,7 +132,7 @@ class data():
     def match_amendments(self):
         for sample in self.observations:
             sample['amendment_text'] = 'No'
-            if sample['label'] == 1:
+            if sample['label'] == float(1):
                 sample['amendment_text'] = AMENDMENTS[str.lower(sample['amendment'])]
         return self.observations
 
@@ -171,9 +171,9 @@ if __name__ == "__main__":
     print(len(training.training_data))
 
 
-    # model = SentenceTransformer('distilbert-base-nli-mean-tokens')
-    # train_loss = losses.CosineSimilarityLoss(model)
-    # model.fit(train_objectives=[(training.train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+    model = SentenceTransformer('distilbert-base-nli-mean-tokens')
+    train_loss = losses.CosineSimilarityLoss(model)
+    model.fit(train_objectives=[(training.train_dataloader, train_loss)], epochs=1, warmup_steps=100)
     
 
 
