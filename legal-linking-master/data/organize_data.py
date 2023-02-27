@@ -1,7 +1,6 @@
 import json
 import os 
-import sentence_transformers as st
-# from sentence_transformers import InputExample
+from sentence_transformers import SentenceTransformer, InputExample, losses
 from torch.utils.data import DataLoader
 
 AMENDMENTS = {'first': 'Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.',
@@ -140,7 +139,7 @@ class data():
 
     def training_format(self):
         for sample in self.observations:
-            self.training_data.append(st.InputExample(texts=[sample['text'], sample['amendment_text']], label = sample['label'] ))
+            self.training_data.append(InputExample(texts=[sample['text'], sample['amendment_text']], label = sample['label'] ))
         self.train_dataloader = DataLoader(self.training_data, shuffle = True, batch_size = 16)
         return self.train_dataloader
     
@@ -164,9 +163,34 @@ if __name__ == "__main__":
     
     resultado = training.match_amendments()
     print(resultado[25].keys())
-    final = training.training_format()
+    print(resultado[25], type(resultado[25]['label']))
+    data_loader = training.training_format()
     print(1)
-    print(dir(type(final)), len(final))
+    print(dir(type(data_loader)), len(training.train_dataloader))
+    print(len(training.observations) )
+    print(len(training.training_data))
+
+
+    # model = SentenceTransformer('distilbert-base-nli-mean-tokens')
+    # train_loss = losses.CosineSimilarityLoss(model)
+    # model.fit(train_objectives=[(training.train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # count = 0
     # lista = []
     # for observation in training.observations:
