@@ -1,5 +1,8 @@
 import json
 import os 
+import sentence_transformers as st
+# from sentence_transformers import InputExample
+from torch.utils.data import DataLoader
 
 AMENDMENTS = {'first': 'Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.',
               'second':'A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.',
@@ -38,6 +41,8 @@ class data():
         self.dir_list = None
         self.observations = None
         self.amendments_categories = None
+        self.training_data = []
+        self.train_dataloader = None
         
 
     def dir_files(self):
@@ -132,7 +137,14 @@ class data():
                 sample['amendment_text'] = AMENDMENTS[str.lower(sample['amendment'])]
         return self.observations
 
+
+    def training_format(self):
+        for sample in self.observations:
+            self.training_data.append(st.InputExample(texts=[sample['text'], sample['amendment_text']], label = sample['label'] ))
+        self.train_dataloader = DataLoader(self.training_data, shuffle = True, batch_size = 16)
+        return self.train_dataloader
     
+
 if __name__ == "__main__":
     path = os.getcwd()
     training = data(path, 'full')
@@ -151,7 +163,10 @@ if __name__ == "__main__":
     # print(training.observations[:50])
     
     resultado = training.match_amendments()
-    print(resultado[:25])
+    print(resultado[25].keys())
+    final = training.training_format()
+    print(1)
+    print(dir(type(final)), len(final))
     # count = 0
     # lista = []
     # for observation in training.observations:
