@@ -151,54 +151,62 @@ if __name__ == "__main__":
     dir_list = training.dir_files()
     # print(dir_list)
     obs = training.org_data()
-    print(len(obs), obs[:3])
-    print(len(training.observations))
+    # print(len(obs), obs[:3])
+    # print(len(training.observa?tions))
     obs2 = training.label()
-    print(training.observations[:3])
+    # print(training.observations[:3])
 
     categoriaas = training.check_amendments()
-    print(categoriaas)
+    # print(categoriaas)
     categorias = training.add_amendments()
     # print(training.observations[:50])
     
     resultado = training.match_amendments()
-    print(resultado[25].keys())
-    print(resultado[25], type(resultado[25]['label']))
+    # print(resultado[25].keys())
+    # print(resultado[25], type(resultado[25]['label']))
     data_loader = training.training_format()
-    print(1)
-    print(dir(type(data_loader)), len(training.train_dataloader))
-    print(len(training.observations) )
-    print(len(training.training_data))
+    # print(1)
+    # print(dir(type(data_loader)), len(training.train_dataloader))
+    # print(training.observations[:10] )
+    # print(training.training_data[:10])
+
+    print(1,training.directory)
+    print(2,training.train_test)
+    print(3,training.dir_list[:5])
+    print(4,training.observations[:10])
+    print(5,training.amendments_categories[:10])
+    print(6,training.training_data[:10])
+    # print(7,training.train_dataloader[:10])
 
 
-    model = SentenceTransformer('distilbert-base-nli-mean-tokens')
-    train_loss = losses.CosineSimilarityLoss(model)
-    model.fit(train_objectives=[(training.train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+    # model = SentenceTransformer('distilbert-base-nli-mean-tokens')
+    # train_loss = losses.CosineSimilarityLoss(model)
+    # model.fit(train_objectives=[(training.train_dataloader, train_loss)], epochs=1, warmup_steps=100)
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # count = 0
-    # lista = []
-    # for observation in training.observations:
-    #     if observation['label'] == 1 and count < 50:
-    #         lista.append(observation)
-    #         count +=1
+    count = 0
+    lista = []
+    for observation in training.observations:
+        if observation['label'] == 1 and count < 50:
+            lista.append(observation)
+            count +=1
        
-    # print(lista[:49])
+    print(lista[:49])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
