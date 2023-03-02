@@ -60,13 +60,13 @@ def data_to_input_examples(data):
 
     for ex in range(len(data)):
         match = "None"
-        label = 0
+        label = 0.0
 
         if data.loc[ex]['Match'] in AMENDMENTS:
             match = AMENDMENTS[data.loc[ex]['Match']]
-            label = data.loc[ex]['Label']
+            label = float(data.loc[ex]['Label'])
 
-        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=float(label)))
+        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=label))
 
     return examples
 
@@ -94,7 +94,7 @@ def finetune(input, lmodel):
     train_dataloader = DataLoader(input, shuffle=True, batch_size=16)
     train_loss = losses.CosineSimilarityLoss(lmodel)
 
-    lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, evaluation_steps=1000, warmup_steps=100)
+    lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
 
 
 
