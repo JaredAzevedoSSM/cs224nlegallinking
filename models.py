@@ -119,7 +119,7 @@ def compute(inputpath, lmodel, measurement, debug):
 
         finetune(examples, model)
 
-        embeddings = model.encode(data.loc["Input"].tolist())
+        embeddings = model.encode(data["Input"].tolist())
         amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
     elif lmodel == "linear":
         pass
