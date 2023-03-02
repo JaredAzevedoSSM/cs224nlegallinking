@@ -40,12 +40,16 @@ AMENDMENTS = {'First Amendment': 'Congress shall make no law respecting an estab
               'None': 'None'}
 
 
-def get_data(inputpath):
+def get_data(inputpath, debug):
     """
     Name: get_data
     Desc: gets data from csv file
     """
     data = pd.read_csv(inputpath)
+
+    if debug:
+        data = data.head(int(len(data) / 10))
+
     data["Match"] = data["Match"].apply(lambda x: x.replace('\n', ' '))
 
     return data
@@ -98,7 +102,7 @@ def finetune(input, lmodel):
 
 
 
-def compute(inputpath, lmodel, measurement):
+def compute(inputpath, lmodel, measurement, debug):
     """
     Name: compute
     Desc: select language model and similarity measurement then compute 
@@ -107,7 +111,7 @@ def compute(inputpath, lmodel, measurement):
     embeddings = None
     similarities = None
 
-    data = get_data(inputpath)
+    data = get_data(inputpath, debug)
     examples = data_to_input_examples(data)
 
     if lmodel == "bert":
@@ -117,6 +121,8 @@ def compute(inputpath, lmodel, measurement):
 
         embeddings = model.encode(data.loc["Input"].tolist())
         amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
+    elif lmodel == "linear":
+        pass
     else:
         raise ValueError("Unknown language model")
 
@@ -142,14 +148,15 @@ def main():
     Name: main
     Desc: ensure correct arugments have been passed in and then execute program
     """
-    if len(sys.argv) != 4:
-        raise Exception("usage: python models.py inputpath.csv [languageModel] [similarityMeasurement]")
+    if len(sys.argv) != 5:
+        raise Exception("usage: python models.py inputpath.csv [languageModel] [similarityMeasurement] [True/False]")
 
     input = sys.argv[1]
     lmodel = sys.argv[2]
     measurement = str(sys.argv[3])
+    debug = bool(sys.argv[4])
 
-    compute(input, lmodel, measurement)
+    compute(input, lmodel, measurement, debug)
 
 
 if __name__ == '__main__':
