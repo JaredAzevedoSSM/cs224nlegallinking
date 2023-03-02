@@ -66,7 +66,7 @@ def data_to_input_examples(data):
             match = AMENDMENTS[data.loc[ex]['Match']]
             label = data.loc[ex]['Label']
 
-        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=label))
+        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=float(label)))
 
     return examples
 
