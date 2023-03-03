@@ -49,7 +49,7 @@ def get_data(inputpath, debug):
     """
     data = pd.read_csv(inputpath)
 
-    if debug:
+    if debug == "True":
         data = data.head(int(len(data) / 1000))
 
     data["Match"] = data["Match"].apply(lambda x: x.replace('\n', ' '))
