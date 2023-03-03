@@ -109,7 +109,7 @@ def finetune(input, lmodel):
     lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
 
 
-def evaluate(amendments, data, final_predictions):
+def evaluate(data, final_predictions):
     """
     Name: evaluate
     Desc: evaluate the predictions compared reality
@@ -126,7 +126,7 @@ def evaluate(amendments, data, final_predictions):
                   'None': [0, 0, 0]}
 
     for ex in range(len(data)):
-        pred_amendment = amendments[final_predictions[ex]]
+        pred_amendment = AMENDMENTS.keys()[final_predictions[ex]]
         true_amendment = data.loc[ex]['Match']
 
         if pred_amendment == true_amendment:
@@ -154,7 +154,6 @@ def compute(inputpath, lmodel, measurement, debug):
     Name: compute
     Desc: select language model and similarity measurement then compute 
     """
-    amendments = [x for x in AMENDMENTS.values()]
     amendment_embeddings = []
     embeddings = []
     predictions = []
@@ -169,7 +168,7 @@ def compute(inputpath, lmodel, measurement, debug):
         finetune(examples, model)
 
         embeddings = model.encode(data["Input"].tolist())
-        amendment_embeddings = model.encode(amendments)
+        amendment_embeddings = model.encode(AMENDMENTS.values())
     else:
         raise ValueError("Unknown language model")
 
@@ -181,7 +180,7 @@ def compute(inputpath, lmodel, measurement, debug):
     for prediction in predictions:
         final_predictions.append(np.argmax(prediction))
 
-    evaluate(amendments, data, final_predictions)
+    evaluate(data, final_predictions)
 
 
 def main():
