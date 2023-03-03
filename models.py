@@ -5,6 +5,7 @@ Desc: various language models and similarity measurements for matching legal tex
 """
 import sys
 import pandas as pd
+import numpy as np
 
 from sentence_transformers import SentenceTransformer, util, InputExample, losses
 from torch.utils.data import DataLoader
@@ -37,22 +38,30 @@ AMENDMENTS = {'First Amendment': 'Congress shall make no law respecting an estab
               'Twenty fifth Amendment':'§1 In case of the removal of the President from office or of his death or resignation, the Vice President shall become PresidentBrief History- Vice Presidential Succession: Until the first presidential vacancy arose in 1841 with the untimely death of President William Henry Harrison, there was great uncertainty as to whether the vice president would become an acting president or fully president. John Tyler insisted that he fully succeeded Harrison–to the point that mail addressed to Acting President Tyler was ignored by the White House. Uncertainty also surrounded the role of the vice president during presidential incapacity. In 1919, President Woodrow Wilson suffered a stroke that paralyzed the left side of his body and significantly weakened him otherwise; that the remainder of his administration was largely shaped by his wife Edith, who acted on his behalf. The ratification of the 25th Amendment in 1967 permanently codified the Tyler Precedent and established procedures for the temporary removal of a president due to incapacity.. §2 Whenever there is a vacancy in the office of the Vice President, the President shall nominate a Vice President who shall take office upon confirmation by a majority vote of both Houses of Congress. §3 Whenever the President transmits to the President pro tempore of the Senate and the Speaker of the House of Representatives his written declaration that he is unable to discharge the powers and duties of his office, and until he transmits to them a written declaration to the contrary, such powers and duties shall be discharged by the Vice President as Acting President. §4 Whenever the Vice President and a majority of either the principal officers of the executive departments or of such other body as Congress may by law provide, transmit to the President pro tempore of the Senate and the Speaker of the House of Representatives their written declaration that the President is unable to discharge the powers and duties of his office, the Vice President shall immediately assume the powers and duties of the office as Acting President. Thereafter, when the President transmits to the President pro tempore of the Senate and the Speaker of the House of Representatives his written declaration that no inability exists, he shall resume the powers and duties of his office unless the Vice President and a majority of either the principal officers of the executive department or of such other body as Congress may by law provide, transmit within four days to the President pro tempore of the Senate and the Speaker of the House of Representatives their written declaration that the President is unable to discharge the powers and duties of his office. Thereupon Congress shall decide the issue, assembling within forty-eight hours for that purpose if not in session. If the Congress, within twenty-one days after receipt of the latter written declaration, or, if Congress is not in session, within twenty-one days after Congress is required to assemble, determines by two-thirds vote of both Houses that the President is unable to discharge the powers and duties of his office, the Vice President shall continue to discharge the same as Acting President; otherwise, the President shall resume the powers and duties of his office.',
               'Twenty sixth Amendment':'§1 The right of citizens of the United States, who are eighteen years of age or older, to vote shall not be denied or abridged by the United States or by any State on account of age. §2 The Congress shall have power to enforce this article by appropriate legislation.',
               'Twenty seventh Amendment':'No law varying the compensation for the services of the Senators and Representatives shall take effect, until an election of Representatives shall have intervened.',
-              'None': 'None'}
+              'None': 'This input does not strongly match with any of the amendments.'}
 
 
 def get_data(inputpath, debug):
     """
     Name: get_data
-    Desc: gets data from csv file
+    Desc: gets data from csv file and splits it into train/test sets
     """
     data = pd.read_csv(inputpath)
 
     if debug:
-        data = data.head(int(len(data) / 10))
+        data = data.head(int(len(data) / 1000))
 
     data["Match"] = data["Match"].apply(lambda x: x.replace('\n', ' '))
+    data = data.astype({"Input": str, "Match": str, "Label": float})
+
+    #train_data = data.sample(frac=0.85)
+    #test_data = data.drop(train_data.index)
+    
+    #train_data.reset_index(inplace=True)
+    #test_data.reset_index(inplace=True)
 
     return data
+    #return (train_data, test_data)
 
 
 def data_to_input_examples(data):
@@ -63,14 +72,14 @@ def data_to_input_examples(data):
     examples = []
 
     for ex in range(len(data)):
-        match = "None"
+        match = "This input does not strongly match with any of the amendments."
         label = 0.0
 
         if data.loc[ex]['Match'] in AMENDMENTS:
             match = AMENDMENTS[data.loc[ex]['Match']]
             label = data.loc[ex]['Label']
 
-        examples.append(InputExample(texts=[str(data.loc[ex]['Input']), match], label=float(label)))
+        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=label))
 
     return examples
 
@@ -101,15 +110,56 @@ def finetune(input, lmodel):
     lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
 
 
+def evaluate(amendments, data, final_predictions):
+    """
+    Name: evaluate
+    Desc: evaluate the predictions compared reality
+    """
+    counts = {'First Amendment': [0, 0, 0], 'Second Amendment': [0, 0, 0], 'Third Amendment': [0, 0, 0], 
+                  'Fourth Amendment': [0, 0, 0], 'Fifth Amendment': [0, 0, 0], 'Sixth Amendment': [0, 0, 0], 
+                  'Seventh Amendment': [0, 0, 0], 'Eighth Amendment': [0, 0, 0], 'Ninth Amendment': [0, 0, 0], 
+                  'Tenth Amendment': [0, 0, 0], 'Eleventh Amendment': [0, 0, 0], 'Twelfth Amendment': [0, 0, 0], 
+                  'Thirteenth Amendment': [0, 0, 0], 'Fourteenth Amendment': [0, 0, 0], 'Fifteenth Amendment': [0, 0, 0], 
+                  'Sixteenth Amendment': [0, 0, 0], 'Seventeenth Amendment': [0, 0, 0], 'Eighteenth Amendment': [0, 0, 0], 
+                  'Nineteenth Amendment': [0, 0, 0], 'Twentieth Amendment': [0, 0, 0], 'Twenty first Amendment': [0, 0, 0], 
+                  'Twenty second Amendment': [0, 0, 0], 'Twenty third Amendment': [0, 0, 0], 'Twenty fourth Amendment': [0, 0, 0],
+                  'Twenty fifth Amendment': [0, 0, 0], 'Twenty sixth Amendment': [0, 0, 0], 'Twenty seventh Amendment': [0, 0, 0], 
+                  'None': [0, 0, 0]}
+
+    for ex in range(len(data)):
+        pred_amendment = amendments[final_predictions[ex]]
+        true_amendment = data.loc[ex]['Match']
+
+        if pred_amendment == true_amendment:
+            counts[pred_amendment][0] += 1
+        else:
+            counts[pred_amendment][1] += 1
+            counts[true_amendment][2] += 1
+    
+    num_tp, num_fp, num_fn = 0, 0, 0
+            
+    for key in counts:
+        num_tp += counts[key][0]
+        num_fp += counts[key][1]
+        num_fn += counts[key][2]
+
+    precision = round(num_tp / (num_tp + num_fp), 3)
+    recall = round(num_tp / (num_tp + num_fn), 3)
+    f1 = round(2 * ((precision * recall) / (precision + recall)), 3)
+
+    print(f"Model metrics: \n\nPrecision - {precision}% \nRecall - {recall}% \nF1 - {f1}%")
+
 
 def compute(inputpath, lmodel, measurement, debug):
     """
     Name: compute
     Desc: select language model and similarity measurement then compute 
     """
-    amendment_embeddings = None
-    embeddings = None
-    similarities = None
+    amendments = [x for x in AMENDMENTS.values()]
+    amendment_embeddings = []
+    embeddings = []
+    predictions = []
+    final_predictions = []
 
     data = get_data(inputpath, debug)
     examples = data_to_input_examples(data)
@@ -120,27 +170,19 @@ def compute(inputpath, lmodel, measurement, debug):
         finetune(examples, model)
 
         embeddings = model.encode(data["Input"].tolist())
-        amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
-    elif lmodel == "linear":
-        pass
+        amendment_embeddings = model.encode(amendments)
     else:
         raise ValueError("Unknown language model")
 
     if measurement == "cosine":
-        similarities = util.cos_sim(embeddings, amendment_embeddings)
+        predictions = util.cos_sim(embeddings, amendment_embeddings)
     else:
         raise ValueError("Unknown similarity measurement")
     
-    all_combinations = []
-    for i in range(len(similarities) - 1):
-        for j in range(i + 1, len(similarities)):
-            all_combinations.append([similarities[i][j], i, j])
-    
-    all_combinations = sorted(all_combinations, key=lambda x: x[0], reverse=True)
+    for prediction in predictions:
+        final_predictions.append(np.argmax(prediction))
 
-    print("Top-5 most similar pairs:")
-    for _, i, j in all_combinations[:5]:
-        print("{} \t {} \t {:.4f}".format(input[i], input[j], similarities[i][j]))
+    evaluate(amendments, data, final_predictions)
 
 
 def main():
