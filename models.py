@@ -7,6 +7,7 @@ import sys
 import pandas as pd
 import numpy as np
 
+from scipy.spatial.distance import euclidean
 from sentence_transformers import SentenceTransformer, util, InputExample, losses
 from torch.utils.data import DataLoader
 
@@ -109,7 +110,7 @@ def finetune(input, lmodel):
     lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
 
 
-def evaluate(data, final_predictions):
+def evaluate(data, final_predictions, measurement):
     """
     Name: evaluate
     Desc: evaluate the predictions compared reality
@@ -147,18 +148,20 @@ def evaluate(data, final_predictions):
     recall = round(num_tp / (num_tp + num_fn), 3)
     f1 = round(2 * ((precision * recall) / (precision + recall)), 3)
 
-    print(f"\nModel metrics: \n\nPrecision - {precision * 100}% \nRecall - {recall * 100}% \nF1 - {f1 * 100}%")
+    print(f"\nModel metrics with {measurement} similarity: \n\nPrecision - {precision * 100}% \nRecall - {recall * 100}% \nF1 - {f1 * 100}%")
 
 
-def compute(inputpath, lmodel, measurement, debug):
+def compute(inputpath, lmodel, debug):
     """
     Name: compute
     Desc: select language model and similarity measurement then compute 
     """
     amendment_embeddings = []
     embeddings = []
-    predictions = []
-    final_predictions = []
+    cos_predictions = []
+    euc_predictions = []
+    cos_final_predictions = []
+    euc_final_predictions = []
 
     data = get_data(inputpath, debug)
     examples = data_to_input_examples(data)
@@ -173,15 +176,15 @@ def compute(inputpath, lmodel, measurement, debug):
     else:
         raise ValueError("Unknown language model")
 
-    if measurement == "cosine":
-        predictions = util.cos_sim(embeddings, amendment_embeddings)
-    else:
-        raise ValueError("Unknown similarity measurement")
+    cos_predictions = util.cos_sim(embeddings, amendment_embeddings)
+    euc_predictions = euclidean(embeddings, amendment_embeddings)
     
-    for prediction in predictions:
-        final_predictions.append(np.argmax(prediction))
+    for sample in range(len(embeddings)):
+        cos_final_predictions.append(np.argmax(cos_predictions[sample]))
+        euc_final_predictions.append(np.argmax(euc_predictions[sample]))
 
-    evaluate(data, final_predictions)
+    evaluate(data, cos_final_predictions, "cosine")
+    evaluate(data, euc_final_predictions, "euclidean")
 
 
 def main():
@@ -189,15 +192,14 @@ def main():
     Name: main
     Desc: ensure correct arugments have been passed in and then execute program
     """
-    if len(sys.argv) != 5:
-        raise Exception("usage: python models.py inputpath.csv [languageModel] [similarityMeasurement] [True/False]")
+    if len(sys.argv) != 4:
+        raise Exception("usage: python models.py inputpath.csv [languageModel] [True/False]")
 
     input = sys.argv[1]
     lmodel = sys.argv[2]
-    measurement = str(sys.argv[3])
-    debug = bool(sys.argv[4])
+    debug = bool(sys.argv[3])
 
-    compute(input, lmodel, measurement, debug)
+    compute(input, lmodel, debug)
 
 
 if __name__ == '__main__':
