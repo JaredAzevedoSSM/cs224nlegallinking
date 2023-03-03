@@ -73,7 +73,7 @@ def data_to_input_examples(data):
 
     for ex in range(len(data)):
         match = "This input does not strongly match with any of the amendments."
-        label = 0.0
+        label = float(0.0)
 
         if data.loc[ex]['Match'] in AMENDMENTS:
             match = AMENDMENTS[data.loc[ex]['Match']]
