@@ -204,6 +204,8 @@ def compute(inputpath, lmodel, debug):
     evaluate(data, cos_final_predictions, "cosine")
     evaluate(data, euc_final_predictions, "euclidean")
 
+    print("\nThe model has finished running.")
+
 
 def main():
     """
