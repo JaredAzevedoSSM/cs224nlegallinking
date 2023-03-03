@@ -217,7 +217,7 @@ def main():
 
     input = sys.argv[1]
     lmodel = sys.argv[2]
-    debug = bool(sys.argv[3])
+    debug = sys.argv[3]
 
     compute(input, lmodel, debug)
 
