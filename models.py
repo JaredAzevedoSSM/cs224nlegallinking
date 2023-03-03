@@ -7,7 +7,7 @@ import sys
 import pandas as pd
 import numpy as np
 
-from scipy.spatial.distance import euclidean
+from scipy.spatial import distance
 from sentence_transformers import SentenceTransformer, util, InputExample, losses
 from torch.utils.data import DataLoader
 
@@ -82,6 +82,24 @@ def data_to_input_examples(data):
         examples.append(InputExample(texts=[str(data.loc[ex]['Input']), match], label=float(label)))
 
     return examples
+
+
+def euclidean(embeddings, amendment_embeddings):
+    """
+    Name: euclidean
+    Desc: computes the euclidean distance between 1d vectors
+    """
+    distances = []
+
+    for embedding in embeddings:
+        a_distances = []
+
+        for a_embeddings in amendment_embeddings:
+            a_distances.append(distance.euclidean(embedding, a_embeddings))
+        
+        distances.append(a_distances)
+    
+    return distances
 
 
 def make_model(input, measurement):
