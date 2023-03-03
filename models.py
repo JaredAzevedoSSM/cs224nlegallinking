@@ -114,6 +114,7 @@ def evaluate(data, final_predictions):
     Name: evaluate
     Desc: evaluate the predictions compared reality
     """
+    amendments = [x for x in AMENDMENTS.keys()]
     counts = {'First Amendment': [0, 0, 0], 'Second Amendment': [0, 0, 0], 'Third Amendment': [0, 0, 0], 
                   'Fourth Amendment': [0, 0, 0], 'Fifth Amendment': [0, 0, 0], 'Sixth Amendment': [0, 0, 0], 
                   'Seventh Amendment': [0, 0, 0], 'Eighth Amendment': [0, 0, 0], 'Ninth Amendment': [0, 0, 0], 
@@ -126,7 +127,7 @@ def evaluate(data, final_predictions):
                   'None': [0, 0, 0]}
 
     for ex in range(len(data)):
-        pred_amendment = AMENDMENTS.keys()[final_predictions[ex]]
+        pred_amendment = amendments[final_predictions[ex]]
         true_amendment = data.loc[ex]['Match']
 
         if pred_amendment == true_amendment:
@@ -168,7 +169,7 @@ def compute(inputpath, lmodel, measurement, debug):
         finetune(examples, model)
 
         embeddings = model.encode(data["Input"].tolist())
-        amendment_embeddings = model.encode(AMENDMENTS.values())
+        amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
     else:
         raise ValueError("Unknown language model")
 
