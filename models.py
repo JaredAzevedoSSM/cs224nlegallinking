@@ -147,7 +147,7 @@ def evaluate(data, final_predictions):
     recall = round(num_tp / (num_tp + num_fn), 3)
     f1 = round(2 * ((precision * recall) / (precision + recall)), 3)
 
-    print(f"Model metrics: \n\nPrecision - {precision}% \nRecall - {recall}% \nF1 - {f1}%")
+    print(f"\nModel metrics: \n\nPrecision - {precision * 100}% \nRecall - {recall * 100}% \nF1 - {f1 * 100}%")
 
 
 def compute(inputpath, lmodel, measurement, debug):
