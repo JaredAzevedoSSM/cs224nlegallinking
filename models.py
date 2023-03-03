@@ -52,7 +52,6 @@ def get_data(inputpath, debug):
         data = data.head(int(len(data) / 1000))
 
     data["Match"] = data["Match"].apply(lambda x: x.replace('\n', ' '))
-    data = data.astype({"Input": str, "Match": str, "Label": float})
 
     #train_data = data.sample(frac=0.85)
     #test_data = data.drop(train_data.index)
@@ -73,13 +72,13 @@ def data_to_input_examples(data):
 
     for ex in range(len(data)):
         match = "This input does not strongly match with any of the amendments."
-        label = float(0.0)
+        label = 0.0
 
         if data.loc[ex]['Match'] in AMENDMENTS:
             match = AMENDMENTS[data.loc[ex]['Match']]
             label = data.loc[ex]['Label']
 
-        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=label))
+        examples.append(InputExample(texts=[str(data.loc[ex]['Input']), match], label=float(label)))
 
     return examples
 
