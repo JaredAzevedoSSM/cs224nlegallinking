@@ -50,7 +50,7 @@ def get_data(inputpath, debug):
     data = pd.read_csv(inputpath)
 
     if debug == "True":
-        data = data.sample(frac=0.05)
+        data = data.sample(frac=0.01)
 
     data["Input"] = data["Input"].apply(lambda x: str(x))
 
@@ -161,11 +161,11 @@ def evaluate(data, final_predictions, measurement):
         num_fp += counts[key][1]
         num_fn += counts[key][2]
 
-    precision = round(num_tp / (num_tp + num_fp), 3)
-    recall = round(num_tp / (num_tp + num_fn), 3)
-    f1 = round(2 * ((precision * recall) / (precision + recall)), 3)
+    precision = num_tp / (num_tp + num_fp)
+    recall = num_tp / (num_tp + num_fn)
+    f1 = 2 * ((precision * recall) / (precision + recall))
 
-    print(f"\nModel metrics with {measurement} similarity: \n\nPrecision - {precision * 100}% \nRecall - {recall * 100}% \nF1 - {f1 * 100}%")
+    print(f"\nModel metrics with {measurement} similarity: \n\nPrecision - {round(precision * 100, 1)}% \nRecall - {round(recall * 100, 1)}% \nF1 - {round(f1 * 100, 1)}%")
 
 
 def compute(inputpath, lmodel, debug):
