@@ -50,18 +50,18 @@ def get_data(inputpath, debug):
     data = pd.read_csv(inputpath)
 
     if debug == "True":
-        data = data.head(int(len(data) / 1000))
+        data = data.sample(frac=0.1)
 
     data["Match"] = data["Match"].apply(lambda x: x.replace('\n', ' '))
+    data["Input"] = data["Input"].apply(lambda x: str(x))
 
-    #train_data = data.sample(frac=0.85)
-    #test_data = data.drop(train_data.index)
+    train_data = data.sample(frac=0.85)
+    test_data = data.drop(train_data.index)
     
-    #train_data.reset_index(inplace=True)
-    #test_data.reset_index(inplace=True)
+    train_data.reset_index(inplace=True)
+    test_data.reset_index(inplace=True)
 
-    return data
-    #return (train_data, test_data)
+    return (train_data, test_data)
 
 
 def data_to_input_examples(data):
@@ -181,15 +181,15 @@ def compute(inputpath, lmodel, debug):
     cos_final_predictions = []
     euc_final_predictions = []
 
-    data = get_data(inputpath, debug)
-    examples = data_to_input_examples(data)
+    train_data, test_data = get_data(inputpath, debug)
+    examples = data_to_input_examples(train_data)
 
     if lmodel == "bert":
         model = SentenceTransformer('all-mpnet-base-v2')
 
         finetune(examples, model)
 
-        embeddings = model.encode(data["Input"].tolist())
+        embeddings = model.encode(test_data["Input"].tolist())
         amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
     else:
         raise ValueError("Unknown language model")
@@ -201,8 +201,8 @@ def compute(inputpath, lmodel, debug):
         cos_final_predictions.append(np.argmax(cos_predictions[sample]))
         euc_final_predictions.append(np.argmax(euc_predictions[sample]))
 
-    evaluate(data, cos_final_predictions, "cosine")
-    evaluate(data, euc_final_predictions, "euclidean")
+    evaluate(test_data, cos_final_predictions, "cosine")
+    evaluate(test_data, euc_final_predictions, "euclidean")
 
     print("\nThe model has finished running.\n")
 
