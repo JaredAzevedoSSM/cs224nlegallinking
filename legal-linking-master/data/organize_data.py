@@ -6,7 +6,6 @@ Desc: convert json data into data with input, matching sentence, and label
 import json
 import os
 import sys
-import re
 import pandas as pd
 
 # AMENDMENTS = {'first': 'Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.',
@@ -193,7 +192,55 @@ def separate(data):
 
     for example in data:
         inputs.append(example['input'].strip())
-        matches.append(re.sub('[\s+]', ' ', example['match'].strip()).replace('\n', ''))
+
+        match = example['match'].lower()
+
+        if 'firs' in match:
+            match = "First Amendment"
+        elif 'sec' in match:
+            match = "Second Amendment"
+        elif 'thir' in match:
+            match = "Third Amendment"
+        elif 'fourth' in match:
+            match = "Fourth Amendment"
+        elif 'fifth' in match:
+            match = "Fifth Amendment"
+        elif 'sixth' in match:
+            match = "Sixth Amendment"
+        elif 'seventh' in match:
+            match = "Seventh Amendment"
+        elif 'eighth' in match:
+            match = "Eighth Amendment"
+        elif 'ninth' in match:
+            match = "Ninth Amendment"
+        elif 'tent' in match:
+            match = "Tenth Amendment"
+        elif 'eleven' in match:
+            match = "Eleventh Amendment"
+        elif 'twelve' in match:
+            match = "Twelth Amendment"
+        elif 'thirteen' in match:
+            match = "Thirteenth Amendment"
+        elif 'fourteen' in match:
+            match = "Fourteenth Amendment"
+        elif 'fifteen' in match:
+            match = "Fifteenth Amendment"
+        elif 'sixteen' in match:
+            match = "Sixteenth Amendment"
+        elif 'seventeen' in match:
+            match = "Seventeenth Amendment"
+        elif 'eighteen' in match:
+            match = "Eighteenth Amendment"
+        elif 'nineteen' in match:
+            match = "Nineteenth Amendment"
+        elif 'twentieth' in match:
+            match = "Twentieth Amendment"
+        elif 'twenty-first' in match:
+            match = "Twenty-First Amendment"
+        else: 
+            match = "None"
+
+        matches.append(match)
         labels.append(example['label'])
 
     return {'Input': inputs, 'Match': matches, 'Label': labels}

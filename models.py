@@ -50,9 +50,8 @@ def get_data(inputpath, debug):
     data = pd.read_csv(inputpath)
 
     if debug == "True":
-        data = data.sample(frac=0.1)
+        data = data.sample(frac=0.05)
 
-    data["Match"] = data["Match"].apply(lambda x: x.replace('\n', ' '))
     data["Input"] = data["Input"].apply(lambda x: str(x))
 
     train_data = data.sample(frac=0.85)
@@ -79,7 +78,7 @@ def data_to_input_examples(data):
             match = AMENDMENTS[data.loc[ex]['Match']]
             label = data.loc[ex]['Label']
 
-        examples.append(InputExample(texts=[str(data.loc[ex]['Input']), match], label=float(label)))
+        examples.append(InputExample(texts=[data.loc[ex]['Input'], match], label=float(label)))
 
     return examples
 
