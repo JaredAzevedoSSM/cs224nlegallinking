@@ -147,16 +147,17 @@ def evaluate(data, final_predictions, measurement):
     pred_sum, true_sum = np.sum(confusion_matrix, axis=0), np.sum(confusion_matrix, axis=1)
     
     for i, preds in enumerate(confusion_matrix):
-        print(preds)
-        print(preds[i])
-        precisions.append(preds[i] / (preds[i] + (pred_sum[i] - preds[i])))
-        recalls.append(preds[i] / (preds[i] + (true_sum[i] - preds[i])))
-        f1s.append(2 * ((precisions[i] * recalls[i]) / (precisions[i] + recalls[i])))
+        lprecision = preds[i] / (preds[i] + (pred_sum[i] - preds[i]))
+        precisions.append(lprecision if np.isnan(lprecision) else 0.0)
+
+        lrecall = preds[i] / (preds[i] + (true_sum[i] - preds[i]))
+        recalls.append(lrecall if np.isnan(lrecall) else 0.0)
+
+        lf1 = 2 * ((precisions[i] * recalls[i]) / (precisions[i] + recalls[i]))
+        f1s.append(lf1 if np.isnan(lf1) else 0.0)
     
     weights = true_sum / np.sum(true_sum)
     precision = np.average(precisions, weights=weights)
-    print(precisions)
-    print(precision)
     recall = np.average(recalls, weights=weights)
     f1 = np.average(f1s, weights=weights)
 
