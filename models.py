@@ -133,33 +133,21 @@ def evaluate(data, final_predictions, measurement):
     Desc: evaluate the predictions compared reality
     """
     amendments = [x for x in AMENDMENTS.keys()]
-    counts = {'First Amendment': [0, 0, 0], 'Second Amendment': [0, 0, 0], 'Third Amendment': [0, 0, 0], 
-                  'Fourth Amendment': [0, 0, 0], 'Fifth Amendment': [0, 0, 0], 'Sixth Amendment': [0, 0, 0], 
-                  'Seventh Amendment': [0, 0, 0], 'Eighth Amendment': [0, 0, 0], 'Ninth Amendment': [0, 0, 0], 
-                  'Tenth Amendment': [0, 0, 0], 'Eleventh Amendment': [0, 0, 0], 'Twelfth Amendment': [0, 0, 0], 
-                  'Thirteenth Amendment': [0, 0, 0], 'Fourteenth Amendment': [0, 0, 0], 'Fifteenth Amendment': [0, 0, 0], 
-                  'Sixteenth Amendment': [0, 0, 0], 'Seventeenth Amendment': [0, 0, 0], 'Eighteenth Amendment': [0, 0, 0], 
-                  'Nineteenth Amendment': [0, 0, 0], 'Twentieth Amendment': [0, 0, 0], 'Twenty-First Amendment': [0, 0, 0], 
-                  'Twenty-Second Amendment': [0, 0, 0], 'Twenty-Third Amendment': [0, 0, 0], 'Twenty-Fourth Amendment': [0, 0, 0],
-                  'Twenty-Fifth Amendment': [0, 0, 0], 'Twenty-Sixth Amendment': [0, 0, 0], 'Twenty-Seventh Amendment': [0, 0, 0], 
-                  'None': [0, 0, 0]}
+    confusion_matrix = np.zeros((len(AMENDMENTS), len(AMENDMENTS)))
 
     for ex in range(len(data)):
-        pred_amendment = amendments[final_predictions[ex]]
-        true_amendment = data.loc[ex]['Match']
+        pred_amendment = final_predictions[ex]
+        true_amendment = amendments.index(data.loc[ex]['Match'])
 
-        if pred_amendment == true_amendment:
-            counts[pred_amendment][0] += 1
-        else:
-            counts[pred_amendment][1] += 1
-            counts[true_amendment][2] += 1
+        confusion_matrix[pred_amendment][true_amendment] += 1
     
     num_tp, num_fp, num_fn = 0, 0, 0
-            
-    for key in counts:
-        num_tp += counts[key][0]
-        num_fp += counts[key][1]
-        num_fn += counts[key][2]
+    pred_sum, true_sum = np.sum(confusion_matrix, axis=0), np.sum(confusion_matrix, axis=1)
+
+    num_tp = np.trace(confusion_matrix)
+    for i, preds in enumerate(confusion_matrix):
+        num_fp += pred_sum[i] - preds[i]
+        num_fn += true_sum[i] - preds[i]
 
     precision = num_tp / (num_tp + num_fp)
     recall = num_tp / (num_tp + num_fn)
