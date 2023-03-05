@@ -152,7 +152,10 @@ def evaluate(data, final_predictions, measurement):
         f1s.append(2 * ((precisions[i] * recalls[i]) / (precisions[i] + recalls[i])))
     
     weights = true_sum / np.sum(true_sum)
+    print(weights)
     precision = np.average(precisions, weights=weights)
+    print(precisions)
+    print(precision)
     recall = np.average(recalls, weights=weights)
     f1 = np.average(f1s, weights=weights)
 
