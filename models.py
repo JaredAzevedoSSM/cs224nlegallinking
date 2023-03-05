@@ -130,7 +130,7 @@ def finetune(input, lmodel):
 def evaluate(data, final_predictions, measurement):
     """
     Name: evaluate
-    Desc: evaluate the predictions compared reality
+    Desc: evaluate the predictions compared to reality
     """
     amendments = [x for x in AMENDMENTS.keys()]
     confusion_matrix = np.zeros((len(AMENDMENTS), len(AMENDMENTS)))
@@ -141,17 +141,20 @@ def evaluate(data, final_predictions, measurement):
 
         confusion_matrix[pred_amendment][true_amendment] += 1
     
-    num_tp, num_fp, num_fn = 0, 0, 0
+    precisions = []
+    recalls = []
+    f1s = []
     pred_sum, true_sum = np.sum(confusion_matrix, axis=0), np.sum(confusion_matrix, axis=1)
-
-    num_tp = np.trace(confusion_matrix)
+    
     for i, preds in enumerate(confusion_matrix):
-        num_fp += pred_sum[i] - preds[i]
-        num_fn += true_sum[i] - preds[i]
-
-    precision = num_tp / (num_tp + num_fp)
-    recall = num_tp / (num_tp + num_fn)
-    f1 = 2 * ((precision * recall) / (precision + recall))
+        precisions.append(preds[i] / (preds[i] + (pred_sum[i] - preds[i])))
+        recalls.append(preds[i] / (preds[i] + (true_sum[i] - preds[i])))
+        f1s.append(2 * ((precisions[i] * recalls[i]) / (precisions[i] + recalls[i])))
+    
+    weights = true_sum / np.sum(true_sum)
+    precision = np.average(precisions, weights=weights)
+    recall = np.average(recalls, weights=weights)
+    f1 = np.average(f1s, weights=weights)
 
     print(f"\nModel metrics with {measurement} similarity: \n\nPrecision - {round(precision * 100, 1)}% \nRecall - {round(recall * 100, 1)}% \nF1 - {round(f1 * 100, 1)}%")
 
