@@ -33,6 +33,10 @@ def compute(inputpath, lmodel, debug):
     else:
         raise ValueError("Unknown language model")
 
+    embeddings = embeddings.to('cuda')
+    amendment_embeddings = amendment_embeddings.to('cuda')
+
+
     results = util.semantic_search(embeddings, amendment_embeddings)
 
     # cos_predictions = util.cos_sim(embeddings, amendment_embeddings)
