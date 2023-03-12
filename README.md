@@ -21,3 +21,5 @@ Repo for NLP project in Stanford CS 224N
 * [SGPT: GPT Sentence Embeddings for Semantic Search](https://github.com/Muennighoff/sgpt)
 * [GloVe: Global Vectors for Word Representation](https://nlp.stanford.edu/projects/glove/)
 * [SimCSE: Simple Contrastive Learning of Sentence Embeddings](https://github.com/princeton-nlp/SimCSE)
+* [Prevent Closing EC2 app even if CLI is closed](https://www.linkedin.com/pulse/prevent-closing-ec2-app-even-cli-closed-abhishek-gupta/?trk=public_profile_article_view)
+* [How to keep EC2 instance running after SSH is terminated?](https://dev.to/akhileshthite/how-to-keep-ec2-instance-running-after-ssh-is-terminated-45k8#:~:text=Press%20Ctrl%2DA%20then%20Ctrl,but%20leave%20your%20processes%20running.)
