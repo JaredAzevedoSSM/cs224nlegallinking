@@ -12,6 +12,7 @@ from sentence_transformers import SentenceTransformer, util, InputExample, losse
 from torch.utils.data import DataLoader
 
 
+MAX_SEQ_LENGTH = 384
 AMENDMENTS = {'First Amendment': 'Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.',
               'Second Amendment':'A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.',
               'Third Amendment': 'No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law.',
@@ -83,10 +84,10 @@ def data_to_input_examples(data):
     return examples
 
 
-def euclidean(embeddings, amendment_embeddings):
+def custom_similarity(embeddings, amendment_embeddings, similarity):
     """
-    Name: euclidean
-    Desc: computes the euclidean distance between 1d vectors
+    Name: custom_similarity
+    Desc: computes the custom similarity between the embeddings
     """
     distances = []
 
@@ -94,7 +95,12 @@ def euclidean(embeddings, amendment_embeddings):
         a_distances = []
 
         for a_embeddings in amendment_embeddings:
-            a_distances.append(distance.euclidean(embedding, a_embeddings))
+            if similarity == "euclidean":
+                a_distances.append(distance.euclidean(embedding, a_embeddings))
+            elif similarity == "manhattan":
+                a_distances.append(distance.cityblock(embedding, a_embeddings))
+            elif similarity == "minkowski":
+                a_distances.append(distance.minkowski(embedding, a_embeddings))
         
         distances.append(a_distances)
     
@@ -181,14 +187,19 @@ def compute(inputpath, lmodel, debug):
     embeddings = []
     cos_predictions = []
     euc_predictions = []
+    man_predictions = []
+    min_predictions = []
     cos_final_predictions = []
     euc_final_predictions = []
+    man_final_predictions = []
+    min_final_predictions = []
 
     train_data, test_data = get_data(inputpath, debug)
     examples = data_to_input_examples(train_data)
 
     if lmodel == "bert":
         model = SentenceTransformer('all-mpnet-base-v2')
+        model.max_seq_length = MAX_SEQ_LENGTH
 
         finetune(examples, model)
 
@@ -198,16 +209,22 @@ def compute(inputpath, lmodel, debug):
         raise ValueError("Unknown language model")
 
     cos_predictions = util.cos_sim(embeddings, amendment_embeddings)
-    euc_predictions = euclidean(embeddings, amendment_embeddings)
+    euc_predictions = custom_similarity(embeddings, amendment_embeddings, "euclidean")
+    man_predictions = custom_similarity(embeddings, amendment_embeddings, "manhattan")
+    min_predictions = custom_similarity(embeddings, amendment_embeddings, "minkowski")
     
     for sample in range(len(embeddings)):
         cos_final_predictions.append(np.argmax(cos_predictions[sample]))
-        euc_final_predictions.append(np.argmax(euc_predictions[sample]))
+        euc_final_predictions.append(np.argmin(euc_predictions[sample]))
+        man_final_predictions.append(np.argmin(man_predictions[sample]))
+        min_final_predictions.append(np.argmin(min_predictions[sample]))
 
     evaluate(test_data, cos_final_predictions, "cosine")
     evaluate(test_data, euc_final_predictions, "euclidean")
+    evaluate(test_data, man_final_predictions, "manhattan")
+    evaluate(test_data, min_final_predictions, "minkowski")
 
-    print("\nThe model has finished running.\n")
+    print("\nThe program has finished running.\n")
 
 
 def main():
