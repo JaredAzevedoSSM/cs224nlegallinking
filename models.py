@@ -12,7 +12,6 @@ from sentence_transformers import SentenceTransformer, util, InputExample, losse
 from torch.utils.data import DataLoader
 
 
-MAX_SEQ_LENGTH = 384
 AMENDMENTS = {'First Amendment': 'Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.',
               'Second Amendment':'A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.A well regulated Militia, being necessary to the security of a free State, the right of the people to keep and bear Arms, shall not be infringed.',
               'Third Amendment': 'No Soldier shall, in time of peace be quartered in any house, without the consent of the Owner, nor in time of war, but in a manner to be prescribed by law.',
@@ -118,7 +117,7 @@ def make_model(input, measurement):
     pass
 
 
-def finetune(input, lmodel):
+def finetune(input, lmodel, b, e):
     """
     Name: finetune
     Desc: if using pretrained model, finetune for our legal text similarity task
@@ -127,10 +126,10 @@ def finetune(input, lmodel):
         lmodel - the model we are using
         measurement - the measurement score we are using which may help us decide which loss to use
     """
-    train_dataloader = DataLoader(input, shuffle=True, batch_size=16)
+    train_dataloader = DataLoader(input, shuffle=True, batch_size=b)
     train_loss = losses.CosineSimilarityLoss(lmodel)
 
-    lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+    lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=e, warmup_steps=100)
 
 
 def evaluate(data, final_predictions, measurement):
@@ -178,13 +177,12 @@ def evaluate(data, final_predictions, measurement):
     print(f"\nModel metrics with {measurement} similarity: \n\nPrecision - {round(precision * 100, 1)}% \nRecall - {round(recall * 100, 1)}% \nF1 - {round(f1 * 100, 1)}%")
 
 
-def compute(inputpath, lmodel, debug):
+def compute(inputpath, lmodel, debug, b=16, e=1):
     """
     Name: compute
     Desc: select language model and similarity measurement then compute 
     """
-    amendment_embeddings = []
-    embeddings = []
+    model = None
     cos_predictions = []
     euc_predictions = []
     man_predictions = []
@@ -199,14 +197,19 @@ def compute(inputpath, lmodel, debug):
 
     if lmodel == "bert":
         model = SentenceTransformer('all-mpnet-base-v2')
-        model.max_seq_length = MAX_SEQ_LENGTH
-
-        finetune(examples, model)
-
-        embeddings = model.encode(test_data["Input"].tolist())
-        amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
+        model.max_seq_length = 384
+    elif lmodel == "glove":
+        model = SentenceTransformer('average_word_embeddings_glove.840B.300d')
+    elif lmodel == "mini":
+        model = SentenceTransformer('all-MiniLM-L12-v2')
+        model.max_seq_length = 256
     else:
         raise ValueError("Unknown language model")
+    
+    finetune(examples, model, b, e)
+
+    embeddings = model.encode(test_data["Input"].tolist())
+    amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
 
     cos_predictions = util.cos_sim(embeddings, amendment_embeddings)
     euc_predictions = custom_similarity(embeddings, amendment_embeddings, "euclidean")
@@ -232,14 +235,16 @@ def main():
     Name: main
     Desc: ensure correct arugments have been passed in and then execute program
     """
-    if len(sys.argv) != 4:
-        raise Exception("usage: python models.py inputpath.csv [languageModel] [True/False]")
+    if len(sys.argv) != 6:
+        raise Exception("usage: python models.py inputpath.csv [languageModel] [True/False] batch_size num_epochs")
 
     input = sys.argv[1]
     lmodel = sys.argv[2]
     debug = sys.argv[3]
+    b = sys.argv[4]
+    e = sys.argv[5]
 
-    compute(input, lmodel, debug)
+    compute(input, lmodel, debug, b, e)
 
 
 if __name__ == '__main__':
