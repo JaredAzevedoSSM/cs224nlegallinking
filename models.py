@@ -187,10 +187,12 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     euc_predictions = []
     man_predictions = []
     min_predictions = []
+    sem_predictions = []
     cos_final_predictions = []
     euc_final_predictions = []
     man_final_predictions = []
     min_final_predictions = []
+    sem_final_predictions = []
 
     train_data, test_data = get_data(inputpath, debug)
     examples = data_to_input_examples(train_data)
@@ -215,17 +217,20 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     euc_predictions = custom_similarity(embeddings, amendment_embeddings, "euclidean")
     man_predictions = custom_similarity(embeddings, amendment_embeddings, "manhattan")
     min_predictions = custom_similarity(embeddings, amendment_embeddings, "minkowski")
+    sem_predictions = util.semantic_search(embeddings, amendment_embeddings)
     
     for sample in range(len(embeddings)):
         cos_final_predictions.append(np.argmax(cos_predictions[sample]))
         euc_final_predictions.append(np.argmin(euc_predictions[sample]))
         man_final_predictions.append(np.argmin(man_predictions[sample]))
         min_final_predictions.append(np.argmin(min_predictions[sample]))
+        sem_final_predictions.append(np.argmax(sem_predictions[sample]))
 
     evaluate(test_data, cos_final_predictions, "cosine")
-    evaluate(test_data, euc_final_predictions, "euclidean")
-    evaluate(test_data, man_final_predictions, "manhattan")
-    evaluate(test_data, min_final_predictions, "minkowski")
+    evaluate(test_data, euc_final_predictions, "euclidean distance")
+    evaluate(test_data, man_final_predictions, "manhattan distance")
+    evaluate(test_data, min_final_predictions, "minkowski distance")
+    evaluate(test_data, sem_final_predictions, "semantic search")
 
     print("\nThe program has finished running.\n")
 
