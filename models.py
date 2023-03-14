@@ -237,6 +237,9 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
         min_final_predictions.append(np.argmin(min_predictions[sample]))
         sem_final_predictions.append(get_sem_max(sem_predictions[sample]))
 
+    print(cos_final_predictions[:3])
+    print(sem_final_predictions[:3])
+
     evaluate(test_data, cos_final_predictions, "cosine")
     evaluate(test_data, euc_final_predictions, "euclidean distance")
     evaluate(test_data, man_final_predictions, "manhattan distance")
