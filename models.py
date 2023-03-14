@@ -210,6 +210,13 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     
     finetune(examples, model, b, e)
 
+    if lmodel == "bert":
+        lmodel.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'bert')
+    elif lmodel == "glove":
+        lmodel.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'glove')
+    elif lmodel == "mini":
+        lmodel.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'mini')
+    
     embeddings = model.encode(test_data["Input"].tolist())
     amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
 
