@@ -214,12 +214,14 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     man_predictions = custom_similarity(embeddings, amendment_embeddings, "manhattan")
     min_predictions = custom_similarity(embeddings, amendment_embeddings, "minkowski")
     sem_predictions = util.semantic_search(embeddings, amendment_embeddings)
+    print(sem_predictions)
     
     for sample in range(len(embeddings)):
         cos_final_predictions.append(np.argmax(cos_predictions[sample]))
         euc_final_predictions.append(np.argmin(euc_predictions[sample]))
         man_final_predictions.append(np.argmin(man_predictions[sample]))
         min_final_predictions.append(np.argmin(min_predictions[sample]))
+        print(sem_predictions[sample])
         sem_final_predictions.append(np.argmax(sem_predictions[sample]))
 
     evaluate(test_data, cos_final_predictions, "cosine")
