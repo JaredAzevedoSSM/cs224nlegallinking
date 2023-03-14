@@ -111,12 +111,13 @@ def get_sem_max(amend_scores):
     Name: get_sem_max
     Desc: gets the max score out of the dictionaries
     """
-    argmax = -1
-    maxscore = -1
+    argmax = 27
+    maxscore = 0
 
     for dictionary in amend_scores:
-        if list(dictionary.values())[0] > maxscore:
-            argmax = list(dictionary.keys())[0]
+        if dictionary["score"] > maxscore:
+            maxscore = dictionary["score"]
+            argmax = dictionary["corpus_id"]
     
     return argmax
 
@@ -229,8 +230,6 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     man_predictions = custom_similarity(embeddings, amendment_embeddings, "manhattan")
     min_predictions = custom_similarity(embeddings, amendment_embeddings, "minkowski")
     sem_predictions = util.semantic_search(embeddings, amendment_embeddings)
-
-    print(sem_predictions[0])
     
     for sample in range(len(embeddings)):
         cos_final_predictions.append(np.argmax(cos_predictions[sample]))
