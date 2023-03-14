@@ -126,10 +126,10 @@ def finetune(input, lmodel, b, e):
         lmodel - the model we are using
         measurement - the measurement score we are using which may help us decide which loss to use
     """
-    train_dataloader = DataLoader(input, shuffle=True, batch_size=b)
+    train_dataloader = DataLoader(input, shuffle=True, batch_size=int(b))
     train_loss = losses.CosineSimilarityLoss(lmodel)
 
-    lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=e, warmup_steps=100)
+    lmodel.fit(train_objectives=[(train_dataloader, train_loss)], epochs=int(e), warmup_steps=100)
 
 
 def evaluate(data, final_predictions, measurement):
