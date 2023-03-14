@@ -114,7 +114,7 @@ def get_sem_max(amend_scores):
     argmax = -1
     maxscore = -1
 
-    print(amend_scores[:3])
+    print(amend_scores[:1])
 
     for dictionary in amend_scores:
         if list(dictionary.values())[0] > maxscore:
