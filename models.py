@@ -114,6 +114,8 @@ def get_sem_max(amend_scores):
     argmax = -1
     maxscore = -1
 
+    print(amend_scores[:3])
+
     for dictionary in amend_scores:
         if list(dictionary.values())[0] > maxscore:
             argmax = list(dictionary.keys())[0]
@@ -236,9 +238,6 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
         man_final_predictions.append(np.argmin(man_predictions[sample]))
         min_final_predictions.append(np.argmin(min_predictions[sample]))
         sem_final_predictions.append(get_sem_max(sem_predictions[sample]))
-
-    print(cos_final_predictions[:3])
-    print(sem_final_predictions[:3])
 
     evaluate(test_data, cos_final_predictions, "cosine")
     evaluate(test_data, euc_final_predictions, "euclidean distance")
