@@ -106,6 +106,21 @@ def custom_similarity(embeddings, amendment_embeddings, similarity):
     return distances
 
 
+def get_sem_max(amend_scores):
+    """
+    Name: get_sem_max
+    Desc: gets the max score out of the dictionaries
+    """
+    argmax = -1
+    maxscore = -1
+
+    for dictionary in amend_scores:
+        if list(dictionary.values())[0] > maxscore:
+            argmax = list(dictionary.keys())[0]
+    
+    return argmax
+
+
 def finetune(input, lmodel, b, e):
     """
     Name: finetune
@@ -213,20 +228,20 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     euc_predictions = custom_similarity(embeddings, amendment_embeddings, "euclidean")
     man_predictions = custom_similarity(embeddings, amendment_embeddings, "manhattan")
     min_predictions = custom_similarity(embeddings, amendment_embeddings, "minkowski")
-    #sem_predictions = util.semantic_search(embeddings, amendment_embeddings)
+    sem_predictions = util.semantic_search(embeddings, amendment_embeddings)
     
     for sample in range(len(embeddings)):
         cos_final_predictions.append(np.argmax(cos_predictions[sample]))
         euc_final_predictions.append(np.argmin(euc_predictions[sample]))
         man_final_predictions.append(np.argmin(man_predictions[sample]))
         min_final_predictions.append(np.argmin(min_predictions[sample]))
-        #sem_final_predictions.append(np.argmax(sem_predictions[sample]))
+        sem_final_predictions.append(get_sem_max(sem_predictions[sample]))
 
     evaluate(test_data, cos_final_predictions, "cosine")
     evaluate(test_data, euc_final_predictions, "euclidean distance")
     evaluate(test_data, man_final_predictions, "manhattan distance")
     evaluate(test_data, min_final_predictions, "minkowski distance")
-    #evaluate(test_data, sem_final_predictions, "semantic search")
+    evaluate(test_data, sem_final_predictions, "semantic search")
 
     print("\nThe program has finished running.\n")
 
