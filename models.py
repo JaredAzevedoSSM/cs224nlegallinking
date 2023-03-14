@@ -205,8 +205,9 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     if lmodel == "bert":
         model = SentenceTransformer('all-mpnet-base-v2')
         model.max_seq_length = 384
-    elif lmodel == "glove":
-        model = SentenceTransformer('average_word_embeddings_glove.840B.300d')
+    elif lmodel == "search":
+        model = SentenceTransformer('multi-qa-mpnet-base-cos-v1')
+        model.max_seq_length = 512
     elif lmodel == "mini":
         model = SentenceTransformer('all-MiniLM-L12-v2')
         model.max_seq_length = 256
@@ -217,8 +218,8 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
 
     if lmodel == "bert":
         model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'bert')
-    elif lmodel == "glove":
-        model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'glove')
+    elif lmodel =="search":
+        model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'search')
     elif lmodel == "mini":
         model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'mini')
     
