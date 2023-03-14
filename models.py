@@ -106,17 +106,6 @@ def custom_similarity(embeddings, amendment_embeddings, similarity):
     return distances
 
 
-def make_model(input, measurement):
-    """
-    Name: make_model
-    Desc: if not using pretrained model, we want to create and train our own for the legal text similarity task
-    Parameters:
-        input - the training data we want to use; note that it may not be partitioned yet into train/test sets
-        measurement - the measurement score we are using which may help us decide which loss to use
-    """
-    pass
-
-
 def finetune(input, lmodel, b, e):
     """
     Name: finetune
@@ -211,11 +200,11 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     finetune(examples, model, b, e)
 
     if lmodel == "bert":
-        lmodel.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'bert')
+        model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'bert')
     elif lmodel == "glove":
-        lmodel.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'glove')
+        model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'glove')
     elif lmodel == "mini":
-        lmodel.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'mini')
+        model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'mini')
     
     embeddings = model.encode(test_data["Input"].tolist())
     amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
