@@ -63,6 +63,16 @@ def get_data(inputpath, debug):
     return (train_data, test_data)
 
 
+def save_amendment_embeddings(embeddings, lmodel):
+    """
+    Name: save_amendment_embeddings
+    Desc: saves the amendment embeddins to a file for later reference during error analysis
+    """
+    with open(lmodel + '-embeddings.txt', 'w') as f:
+        for embedding in embeddings:
+            f.write(str(embedding) + "\n\n\n")
+
+
 def data_to_input_examples(data):
     """
     Name: data_to_input_examples
@@ -226,7 +236,7 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     embeddings = model.encode(test_data["Input"].tolist())
     amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
 
-    print(amendment_embeddings)
+    save_amendment_embeddings(amendment_embeddings, lmodel)
 
     cos_predictions = util.cos_sim(embeddings, amendment_embeddings)
     euc_predictions = custom_similarity(embeddings, amendment_embeddings, "euclidean")
