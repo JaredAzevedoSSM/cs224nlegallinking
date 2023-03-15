@@ -226,6 +226,8 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
     embeddings = model.encode(test_data["Input"].tolist())
     amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
 
+    print(amendment_embeddings)
+
     cos_predictions = util.cos_sim(embeddings, amendment_embeddings)
     euc_predictions = custom_similarity(embeddings, amendment_embeddings, "euclidean")
     man_predictions = custom_similarity(embeddings, amendment_embeddings, "manhattan")
