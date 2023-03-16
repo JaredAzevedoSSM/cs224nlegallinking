@@ -234,7 +234,7 @@ def compute(inputpath, lmodel, debug, b=16, e=1):
         model.save(path ='/home/ubuntu/cs224nlegallinking', model_name = 'mini')
     
     embeddings = model.encode(test_data["Input"].tolist())
-    amendment_embeddings = model.encode([x for x in AMENDMENTS.keys()])
+    amendment_embeddings = model.encode([x for x in AMENDMENTS.values()])
 
     save_amendment_embeddings(amendment_embeddings, lmodel)
 
