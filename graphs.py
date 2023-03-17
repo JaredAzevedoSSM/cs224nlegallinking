@@ -6,30 +6,41 @@ Desc:
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
 import matplotlib.pyplot as plt
+import sys
 
-def embeddings_graph(): 
-    pass
 
+def embeddings_graph(embeddings: list, path: str): 
+    """
+    Name:
+    Desc: 
+    """
+    matrix = np.zeros((len(embeddings), len(embeddings)))
+    cosine_scores = util.cos_sim(embeddings, embeddings)
+    
+    for i in range(len(embeddings)):
+        for j in range(len(embeddings)):
+            matrix[i][j] = cosine_scores[i][j]
+    
+    plt.style.use('_mpl-gallery-nogrid')
+    fig, ax = plt.subplots()
+    ax.imshow(matrix)
+    plt.savefig(f"{path}\str{embeddings}")
 
 
 def main():
     """
     Name: main
-    Desc: ensure correct arugments have been passed in and then execute program
+    Desc: 
     """
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 2:
         raise Exception("usage: python organize_data.py inputpath [full/stripped]")
 
     inputpath = sys.argv[1]
-    cut = sys.argv[2]
+    
+    embeddings = None
 
-    data = load(inputpath, cut)
-    data = organize_and_label(data)
-    data = separate(data)
+    embeddings_graph(embeddings, inputpath)
 
-    data = pd.DataFrame(data)
-
-    data.to_csv(path_or_buf=f"../{cut}-compiled.csv", index=False)
 
 
 if __name__ == "__main__":
